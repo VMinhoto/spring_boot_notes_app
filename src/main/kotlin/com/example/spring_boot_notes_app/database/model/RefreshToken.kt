@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
 
 @Document("refreshTokens")
-data class RefreshTokens(
+data class RefreshToken(
     val userId: ObjectId,
     @Indexed(expireAfter = "0s")
     val expiresAt: Instant,
