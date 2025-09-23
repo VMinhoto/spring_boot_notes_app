@@ -4,9 +4,7 @@ import com.example.spring_boot_notes_app.database.model.RefreshToken
 import com.example.spring_boot_notes_app.database.model.User
 import com.example.spring_boot_notes_app.database.repository.RefreshTokenRepository
 import com.example.spring_boot_notes_app.database.repository.UserRepository
-import org.apache.logging.log4j.message.Message
 import org.bson.types.ObjectId
-import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
