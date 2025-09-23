@@ -3,6 +3,7 @@ package com.example.spring_boot_notes_app.controller
 import com.example.spring_boot_notes_app.controller.NoteController.NoteResponse
 import com.example.spring_boot_notes_app.database.model.Note
 import com.example.spring_boot_notes_app.database.repository.NoteRepository
+import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.bson.types.ObjectId
 import org.springframework.security.core.context.SecurityContextHolder
@@ -28,7 +29,7 @@ class NoteController(
     //Data class to represent the JSON request
     data class NoteRequest(
         val id: String?,
-        @NotBlank(message = "Tittle can't be blank.")
+        @field:NotBlank(message = "Tittle can't be blank.")
         val title: String,
         val content: String,
         val color: Long,
@@ -44,7 +45,7 @@ class NoteController(
 
     @PostMapping
     fun save(
-        @RequestBody body: NoteRequest
+        @Valid @RequestBody body: NoteRequest
     ): NoteResponse {
         val ownerId = SecurityContextHolder.getContext().authentication.principal as String
         val note = repository.save(
