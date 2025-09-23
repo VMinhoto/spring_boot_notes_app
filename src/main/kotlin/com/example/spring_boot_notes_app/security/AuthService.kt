@@ -6,8 +6,10 @@ import com.example.spring_boot_notes_app.database.repository.RefreshTokenReposit
 import com.example.spring_boot_notes_app.database.repository.UserRepository
 import org.apache.logging.log4j.message.Message
 import org.bson.types.ObjectId
+import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.Base64
@@ -50,6 +52,35 @@ class AuthService(
             accessToken = newAccessToken,
             refreshToken = newRefreshToken
         )
+    }
+
+    @Transactional
+    fun refresh(refreshToken: String): TokenPair {
+        if(!jwtService.validateRefreshToken(refreshToken)){
+            throw IllegalArgumentException("Invalid Refresh Token")
+        }
+
+        val userId = jwtService.getUserIdFromToken(refreshToken)
+        val user = userRepository.findById(ObjectId(userId)).orElseThrow {
+            IllegalArgumentException("Invalid Refresh Token")
+        }
+
+        val hashed = hashToken(refreshToken)
+        refreshTokenRepository.findByUserIdAndHashedToken(user.id,hashed)
+            ?: throw IllegalArgumentException("Refresh Token not recognized (maybe used or expired?")
+
+        refreshTokenRepository.deleteByUserIdAndHashedToken(user.id, hashed)
+
+        val newAccessToken = jwtService.generateRefreshToken(userId)
+        val newRefreshToken = jwtService.generateRefreshToken(userId)
+
+        storeRefreshToken(user.id, newRefreshToken)
+
+        return TokenPair(
+            accessToken = newAccessToken,
+            refreshToken = newRefreshToken
+        )
+
     }
 
     private fun storeRefreshToken(userId: ObjectId, rawRefreshToken: String) {
