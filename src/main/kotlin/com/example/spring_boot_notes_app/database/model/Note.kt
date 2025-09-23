@@ -9,7 +9,7 @@ import java.time.Instant
 data class Note(
     val title: String,
     val content: String,
-    val color: String,
+    val color: Long,
     val createdAt: Instant,
     val ownerId: ObjectId,
     @Id val id: ObjectId = ObjectId.get()
