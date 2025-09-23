@@ -1,4 +1,4 @@
-package com.example.spring_boot_notes_app.model
+package com.example.spring_boot_notes_app.database.model
 
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
@@ -11,5 +11,6 @@ data class Note(
     val content: String,
     val color: String,
     val createdAt: Instant,
+    val ownerId: ObjectId,
     @Id val id: ObjectId = ObjectId.get()
 )
