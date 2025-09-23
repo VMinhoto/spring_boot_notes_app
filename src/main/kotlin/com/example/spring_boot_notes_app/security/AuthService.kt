@@ -5,9 +5,11 @@ import com.example.spring_boot_notes_app.database.model.User
 import com.example.spring_boot_notes_app.database.repository.RefreshTokenRepository
 import com.example.spring_boot_notes_app.database.repository.UserRepository
 import org.bson.types.ObjectId
+import org.springframework.http.HttpStatusCode
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.server.ResponseStatusException
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.Base64
@@ -55,17 +57,20 @@ class AuthService(
     @Transactional
     fun refresh(refreshToken: String): TokenPair {
         if(!jwtService.validateRefreshToken(refreshToken)){
-            throw IllegalArgumentException("Invalid Refresh Token")
+            throw ResponseStatusException(HttpStatusCode.valueOf(401),"Invalid Refresh Token")
         }
 
         val userId = jwtService.getUserIdFromToken(refreshToken)
         val user = userRepository.findById(ObjectId(userId)).orElseThrow {
-            IllegalArgumentException("Invalid Refresh Token")
+            ResponseStatusException(HttpStatusCode.valueOf(401),"Invalid Refresh Token")
         }
 
         val hashed = hashToken(refreshToken)
         refreshTokenRepository.findByUserIdAndHashedToken(user.id,hashed)
-            ?: throw IllegalArgumentException("Refresh Token not recognized (maybe used or expired?")
+            ?: throw ResponseStatusException(
+                HttpStatusCode.valueOf(401),
+                "Refresh token not recognized (maybe used or expired?)"
+            )
 
         refreshTokenRepository.deleteByUserIdAndHashedToken(user.id, hashed)
 
