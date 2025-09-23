@@ -10,7 +10,7 @@ import java.util.Date
 
 @Service
 class JwtService(
-    @Value("JWT_SECRET_BASE_64") private val jwtSecret: String
+    @Value("\${jwt.secret}") private val jwtSecret: String
 ) {
 
     private val secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecret))
@@ -61,8 +61,8 @@ class JwtService(
     }
 
     private fun parseAllClaims(token: String): Claims? {
-        val rawToken = if(token.startsWith("Bearer")) {
-            token.removePrefix("Bearer")
+        val rawToken = if(token.startsWith("Bearer ")) {
+            token.removePrefix("Bearer ")
         } else token
         return try {
             Jwts.parser()
